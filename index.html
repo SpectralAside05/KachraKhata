@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KachraKhata – the street waste ledger</title>
+<title>KachraKhata – check litter on your street</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -44,50 +44,63 @@ tbody tr:hover{background:var(--soft)}
 .kpi b{font:700 32px "JetBrains Mono",ui-monospace,monospace;display:block;color:var(--ink);letter-spacing:-.03em}
 .note{color:var(--mute);font-size:13px;margin-top:10px}
 #status{margin-top:12px;display:block}
+body{font-size:17px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:18px 0 22px}
+.step{background:var(--paper);border:1px solid var(--rule);border-radius:16px;padding:14px 16px;font-weight:500}
+.step b{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;align-items:center;justify-content:center;margin-right:10px}
+#drop{display:block;width:100%;padding:34px 20px;font-size:18px}
+#drop .big{font-size:42px}
+.big-btn{font-size:19px;padding:15px 30px}
+.rh{font-family:"Bricolage Grotesque","DM Sans",sans-serif;font-size:20px;margin:18px 0 8px}
+.rc{border-radius:16px;padding:14px 16px;margin:10px 0;border:1px solid var(--rule);border-left:6px solid var(--no-c,#e4572e);background:var(--soft)}
+.rc.g{border-left-color:var(--ok)}.rc.r{border-left-color:var(--red)}
+.rc .sub{color:var(--mute);font-size:15px;margin-top:2px}
+.rc .tip{margin-top:6px;font-weight:500}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div id="mode" class="stamp" style="margin-bottom:10px">Pilot audit</div>
 <h1>Kachra<span>Khata</span></h1>
-<p class="tag">Every street has a ledger nobody keeps: whose packaging is lying in the drain? Snap litter, let AI read the brand and material, and build ward-wise evidence for EPR accountability.</p>
+<p class="tag">Take a photo of litter on your street. We tell you what it is, which company's packaging it is, and whether it can be recycled.</p>
 <p class="note">Built by <b>Aarush Jha</b></p>
 
+<div class="steps"><div class="step"><b>1</b>Take a photo of litter</div><div class="step"><b>2</b>Tap “Check this litter”</div><div class="step"><b>3</b>See what it is and who made it</div></div>
+
 <section class="book">
-<h2>1. Make an entry</h2>
-<div class="row">
-<label id="drop">📷 Tap to add a photo of street litter<input id="file" type="file" accept="image/*" hidden></label>
-<div class="row" style="flex:1 1 220px">
-<input id="ward" type="text" placeholder="Locality (e.g. Gole Bazar, Kharagpur)" style="flex:1 1 200px">
-<button id="geo" class="alt" type="button">📍 Add GPS</button>
-<button id="go" type="button" disabled>Read the litter</button>
+<h2>Check some litter</h2>
+<label id="drop"><span class="big">📷</span><br>Tap here to take or choose a photo<input id="file" type="file" accept="image/*" hidden></label>
+<img id="preview" alt="Your litter photo">
+<div class="row" style="margin-top:16px">
+<input id="ward" type="text" placeholder="Where is this? (area or street name)" style="flex:1 1 220px">
+<button id="geo" class="alt" type="button">📍 Use my location</button>
 </div>
-</div>
-<img id="preview" alt="Selected litter photo">
+<div class="row" style="margin-top:16px"><button id="go" class="big-btn" type="button" disabled>Check this litter</button></div>
 <div id="status" class="note"></div>
+<div id="result"></div>
 </section>
 
 <section class="book">
-<h2>2. Ledger</h2>
-<div class="scroll"><table><thead><tr><th></th><th>When</th><th>Brand</th><th>Item</th><th>Material</th><th>Recyclable</th><th>Conf.</th><th>Ward</th></tr></thead><tbody id="rows"><tr><td colspan="8" class="note">No entries yet. Add a photo above, or load sample pilot data to preview the dashboard.</td></tr></tbody></table></div>
-<div class="row" style="margin-top:10px"><button id="demo" class="alt" type="button">Load sample pilot data</button><button id="clear" class="alt" type="button">Clear ledger</button></div>
+<h2>Everything checked so far</h2>
+<div class="scroll"><table><thead><tr><th></th><th>Date</th><th>Brand</th><th>What it is</th><th>Made of</th><th>Can it be recycled?</th><th>How sure are we?</th><th>Area</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="row" style="margin-top:12px"><button id="demo" class="alt" type="button">See an example</button><button id="clear" class="alt" type="button">Clear list</button></div>
 </section>
 
 <section class="book">
-<h2>3. Brand league table</h2>
-<div class="row" style="margin-bottom:10px"><label>Ward: <select id="wardFilter"><option value="">All wards</option></select></label></div>
-<div class="kpis"><div class="kpi"><b id="kItems">0</b>items logged</div><div class="kpi"><b id="kBrands">0</b>brands traced</div><div class="kpi"><b id="kRec">0%</b>recyclable</div><div class="kpi"><b id="kRev">0</b>need review</div></div>
+<h2>Whose packaging is lying around the most?</h2>
+<div class="row" style="margin-bottom:12px"><label>Area: <select id="wardFilter"><option value="">All areas</option></select></label></div>
+<div class="kpis"><div class="kpi"><b id="kItems">0</b>pieces of litter found</div><div class="kpi"><b id="kBrands">0</b>brands spotted</div><div class="kpi"><b id="kRec">0%</b>can be recycled</div><div class="kpi"><b id="kRev">0</b>need a second look</div></div>
 <div id="board"></div>
 <div id="mat"></div>
-<p class="note">Aggregate audit evidence only. Low-confidence reads (&lt;60%) are flagged for human review and excluded from the brand league table.</p>
+<p class="note">Brands are only counted when we are fairly sure. Anything we are not sure about is marked “needs a check” and left out of the ranking.</p>
 </section>
 
 <section class="book">
-<h2>4. EPR evidence report</h2>
-<p style="background:var(--paper);margin:0 0 10px">Export the current view as a CSV and summary for municipal bodies, NGOs or EPR compliance audits.</p>
+<h2>Share what you found</h2>
+<p style="margin:0 0 12px">Download a simple report (opens in Excel or Google Sheets) to share with your municipal office, school, RWA or an NGO.</p>
 <button id="exp" type="button">Download report</button> <span id="expmsg" class="note"></span>
 </section>
-<p class="note">Sample pilot entries are illustrative demo data, not real field evidence. Photos you add are sent to an AI model (Google Gemini) to be read and are not stored by this app; entries stay in your browser. Please avoid photographing people. Brand figures are aggregate audit indicators, not accusations against any company.</p>
+
+<p class="note">Example entries are demo data, not real findings. Your photos are sent to Google's AI (Gemini) to be read and are not stored by this app; your list stays in your own browser. Please don't photograph people. The ranking shows what litter was found, not blame on any company.</p>
 <p class="note"><b>KachraKhata</b> · built by Aarush Jha</p>
 </div>
 
@@ -102,25 +115,28 @@ function analyze(f){return new Promise(function(res,rej){var im=new Image();im.o
 function esc(t){var d=document.createElement("div");d.textContent=t==null?"":String(t);return d.innerHTML}
 function norm(b){b=(b||"Unidentified").trim();return b.toLowerCase()==="unknown"?"Unidentified":b}
 
+var MAT={"PET":"Plastic bottle (PET)","HDPE":"Hard plastic (HDPE)","multilayer sachet":"Thin layered plastic packet","PP":"Hard plastic (PP)","glass":"Glass","aluminium":"Metal can or foil","paper/cardboard":"Paper or cardboard","other plastic":"Other plastic","organic":"Food or organic waste","other":"Other"};
+function mat(m){return MAT[m]||m||"Other"}
+function nice(b){return b==="Unidentified"?"Brand not clear":b}
+function sure(c){return c>=.8?'<span class="ok">Sure</span>':c>=.6?'Fairly sure':'<span class="rv">Not sure, needs a check</span>'}
+function tip(e){return e.recyclable?"Can be recycled. Keep it dry and clean and give it to your dry-waste collector or kabadiwala.":"Hard to recycle. Put it in the dry-waste bin. Please don't burn it."}
+function showResult(items){
+ $("result").innerHTML=items.length?'<h3 class="rh">Here is what we found</h3>'+items.map(function(e){return '<div class="rc '+(e.recyclable?'g':'r')+'"><b>'+esc(nice(e.brand))+'</b> · '+esc(e.item)+'<div class="sub">Made of: '+esc(mat(e.material))+' · '+sure(e.confidence)+'</div><div class="tip">'+(e.recyclable?'♻️ ':'🚫 ')+esc(tip(e))+'</div></div>'}).join(""):'<p class="note">We could not spot any litter in this photo. Try a closer, clearer photo.</p>';
+}
 function render(){
- var real=entries.filter(function(e){return !e.s}),m="Pilot audit";
- if(real.length){var w=(real[real.length-1].ward||"").trim(),c=w.split(",").pop().trim();m=(c&&!/^[\d.\s,\-]+$/.test(w))?"Live audit · "+c:"Live audit"}
- else if(entries.length){m="Sample pilot data"}
- $("mode").textContent=m;
  var wards=[];entries.forEach(function(e){if(e.ward&&wards.indexOf(e.ward)<0)wards.push(e.ward)});
  var wf=$("wardFilter"),cur=wf.value;
- wf.innerHTML='<option value="">All wards</option>'+wards.map(function(w){return '<option>'+esc(w)+'</option>'}).join("");
+ wf.innerHTML='<option value="">All areas</option>'+wards.map(function(w){return '<option>'+esc(w)+'</option>'}).join("");
  wf.value=wards.indexOf(cur)>=0?cur:"";
  var list=entries.filter(function(e){return !wf.value||e.ward===wf.value});
  $("rows").innerHTML=entries.length?entries.slice().reverse().map(function(e){
-  var c=Math.round(e.confidence*100),low=e.confidence<.6;
-  return '<tr><td>'+(e.th?'<img src="'+e.th+'" width="40" alt="" style="border:1px solid var(--ink);display:block">':'')+'</td><td>'+new Date(e.t).toLocaleDateString("en-IN",{day:"numeric",month:"short"})+'</td><td><b>'+esc(e.brand)+'</b>'+(e.s?' <span class="stamp" style="font-size:10px">sample</span>':'')+'</td><td>'+esc(e.item)+'</td><td>'+esc(e.material)+'</td><td class="'+(e.recyclable?'ok':'no')+'">'+(e.recyclable?'Yes':'No')+'</td><td class="'+(low?'rv':'')+'">'+c+'%'+(low?' <span class="stamp">review</span>':'')+'</td><td>'+esc(e.ward||'–')+'</td></tr>'}).join(""):'<tr><td colspan="8" class="note">No entries yet. Add a photo above, or load sample entries to preview the dashboard.</td></tr>';
+  return '<tr><td>'+(e.th?'<img src="'+e.th+'" width="40" alt="" style="border-radius:8px;display:block">':'')+'</td><td>'+new Date(e.t).toLocaleDateString("en-IN",{day:"numeric",month:"short"})+'</td><td><b>'+esc(nice(e.brand))+'</b>'+(e.s?' <span class="stamp" style="font-size:10px">example</span>':'')+'</td><td>'+esc(e.item)+'</td><td>'+esc(mat(e.material))+'</td><td class="'+(e.recyclable?'ok':'no')+'">'+(e.recyclable?'Yes':'No')+'</td><td>'+sure(e.confidence)+'</td><td>'+esc(e.ward||'–')+'</td></tr>'}).join(""):'<tr><td colspan="8" class="note">Nothing here yet. Check a photo above, or tap “See an example”.</td></tr>';
  var good=list.filter(function(e){return e.confidence>=.6}),counts={},mats={};
  good.forEach(function(e){var b=norm(e.brand);counts[b]=(counts[b]||0)+1});
- list.forEach(function(e){mats[e.material]=(mats[e.material]||0)+1});
+ list.forEach(function(e){var k=mat(e.material);mats[k]=(mats[k]||0)+1});
  var top=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]}).slice(0,8),max=top.length?counts[top[0]]:1;
- $("board").innerHTML=top.length?top.map(function(b,i){return '<div class="lb"><span>'+(i+1)+'. '+esc(b)+'</span><div class="bar" style="width:'+Math.round(counts[b]/max*100)+'%"></div><b>'+counts[b]+'</b></div>'}).join(""):'<p class="note">The league table fills up as entries are added.</p>';
- $("mat").innerHTML=Object.keys(mats).length?'<p class="note" style="margin-top:12px">Material mix: '+Object.keys(mats).map(function(m){return esc(m)+' '+mats[m]}).join(' · ')+'</p>':'';
+ $("board").innerHTML=top.length?top.map(function(b,i){return '<div class="lb"><span>'+(i+1)+'. '+esc(nice(b))+'</span><div class="bar" style="width:'+Math.round(counts[b]/max*100)+'%"></div><b>'+counts[b]+'</b></div>'}).join(""):'<p class="note">The ranking appears here after you check a photo.</p>';
+ $("mat").innerHTML=Object.keys(mats).length?'<p class="note" style="margin-top:12px">What the litter is made of: '+Object.keys(mats).map(function(k){return esc(k)+' ('+mats[k]+')'}).join(' · ')+'</p>':'';
  $("kItems").textContent=list.length;$("kBrands").textContent=Object.keys(counts).filter(function(b){return b!=="Unidentified"}).length;
  $("kRec").textContent=list.length?Math.round(list.filter(function(e){return e.recyclable}).length/list.length*100)+"%":"0%";
  $("kRev").textContent=list.filter(function(e){return e.confidence<.6}).length;
@@ -128,16 +144,16 @@ function render(){
 }
 
 $("file").addEventListener("change",function(){
- file=this.files[0]||null;
+ file=this.files[0]||null;$("result").innerHTML="";
  if(file){var p=$("preview");p.src=URL.createObjectURL(file);p.style.display="block";$("go").disabled=!sample}
 });
 $("geo").addEventListener("click",function(){
  var st=$("status");
- if(!navigator.geolocation){st.textContent="GPS isn't available in this browser. Type the locality instead.";return}
- st.textContent="Getting your location…";
+ if(!navigator.geolocation){st.textContent="Your browser can't share your location. Please type the area name.";return}
+ st.textContent="Finding where you are…";
  navigator.geolocation.getCurrentPosition(async function(p){
   geo={lat:+p.coords.latitude.toFixed(5),lng:+p.coords.longitude.toFixed(5)};
-  st.textContent="GPS captured. Finding the locality name…";
+  st.textContent="Almost there, finding the area name…";
   try{
    var r=await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&accept-language=en&lat="+geo.lat+"&lon="+geo.lng);
    var j=await r.json(),a=j.address||{};
@@ -145,24 +161,24 @@ $("geo").addEventListener("click",function(){
    var city=a.city||a.town||a.county||a.state_district||"";
    var name=[area,city].filter(Boolean).join(", ")||(j.display_name||"").split(",").slice(0,2).join(",").trim();
    if(!name)throw 0;
-   $("ward").value=name;st.textContent="Locality set to "+name+" (you can edit it).";
-  }catch(e){$("ward").value=geo.lat+", "+geo.lng;st.textContent="GPS captured, but the name lookup failed, so coordinates were filled in. You can type a locality instead."}
+   $("ward").value=name;st.textContent="Area set to "+name+". You can change it if it looks wrong.";
+  }catch(e){$("ward").value=geo.lat+", "+geo.lng;st.textContent="We found your location but not the area name. Please type the area name."}
  },function(err){
-  st.textContent=err&&err.code===1?"Location permission denied. Allow location for this site (lock icon in the address bar), or type the locality.":"Couldn't get your location. Type the locality instead."
+  st.textContent=err&&err.code===1?"Location is blocked. Allow location for this site (tap the lock icon near the web address), or just type the area name.":"Could not get your location. Please type the area name."
  },{timeout:10000});
 });
 
 $("go").addEventListener("click",async function(){
  if(!file||!sample)return;
- var btn=this;btn.disabled=true;$("status").textContent="Reading the litter… (can take up to a minute)";
+ var btn=this;btn.disabled=true;$("status").textContent="Checking your photo… this can take up to a minute. Please wait.";
  try{
   var th=await thumb(file);
   var r=await analyze(file);
-  var arr=(r&&r.items)||[];
-  arr.forEach(function(it){entries.push({brand:norm(it.brand),item:it.item||"item",material:it.material||"other",recyclable:!!it.recyclable,confidence:Math.max(0,Math.min(1,+it.confidence||0)),ward:$("ward").value.trim(),geo:geo,t:Date.now(),th:th})});
-  save();render();
-  $("status").textContent=arr.length?arr.length+" item(s) added to the ledger.":"No identifiable litter found in this photo."
- }catch(e){$("status").textContent="Could not read this photo ("+(e&&e.message||"error")+"). Try another one."}
+  var arr=(r&&r.items)||[],added=[];
+  arr.forEach(function(it){var en={brand:norm(it.brand),item:it.item||"item",material:it.material||"other",recyclable:!!it.recyclable,confidence:Math.max(0,Math.min(1,+it.confidence||0)),ward:$("ward").value.trim(),geo:geo,t:Date.now(),th:th};entries.push(en);added.push(en)});
+  save();render();showResult(added);
+  $("status").textContent=added.length?"Done! Your results are below.":""
+ }catch(e){$("status").textContent="Sorry, we could not check this photo ("+(e&&e.message||"error")+"). Please try again, or use a clearer photo."}
  btn.disabled=false;
 });
 
@@ -177,10 +193,10 @@ $("wardFilter").addEventListener("change",render);
 
 $("exp").addEventListener("click",async function(){
  var w=$("wardFilter").value,list=entries.filter(function(e){return !w||e.ward===w});
- var csv="brand,item,material,recyclable,confidence,ward,lat,lng\n"+list.map(function(e){return [e.brand,e.item,e.material,e.recyclable?"yes":"no",e.confidence,e.ward||"",e.geo?e.geo.lat:"",e.geo?e.geo.lng:""].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
+ var csv="Brand,What it is,Made of,Recyclable,Confidence (0-1),Area,Latitude,Longitude\n"+list.map(function(e){return [e.brand,e.item,e.material,e.recyclable?"yes":"no",e.confidence,e.ward||"",e.geo?e.geo.lat:"",e.geo?e.geo.lng:""].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
  var counts={};list.filter(function(e){return e.confidence>=.6}).forEach(function(e){counts[e.brand]=(counts[e.brand]||0)+1});
  var hasS=list.some(function(e){return e.s});
- var sum=(hasS?"NOTE: includes illustrative SAMPLE entries, not field evidence.\n":"")+"KachraKhata EPR evidence summary ("+(w||"all wards")+")\nItems logged: "+list.length+"\nTop brands: "+Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]}).slice(0,5).map(function(b){return b+" ("+counts[b]+")"}).join(", ")+"\nNote: AI-assisted audit; reads under 60% confidence excluded from brand counts and flagged for human review.\n\n";
+ var sum=(hasS?"NOTE: includes illustrative SAMPLE entries, not field evidence.\n":"")+"KachraKhata litter report ("+(w||"all wards")+")\nItems logged: "+list.length+"\nTop brands: "+Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]}).slice(0,5).map(function(b){return b+" ("+counts[b]+")"}).join(", ")+"\nNote: AI-assisted audit; reads under 60% confidence excluded from brand counts and flagged for human review.\n\n";
  try{var bl=new Blob([sum+csv],{type:"text/csv"}),u=URL.createObjectURL(bl),l=document.createElement("a");l.href=u;l.download="kachrakhata-epr-report.csv";document.body.appendChild(l);l.click();l.remove();$("expmsg").textContent="Report downloaded."}catch(e){$("expmsg").textContent="Download failed.";}
 });
 

@@ -48,7 +48,7 @@ tbody tr:hover{background:var(--soft)}
 </head>
 <body>
 <div class="wrap">
-<div class="stamp" style="margin-bottom:10px">Pilot audit · Kharagpur</div>
+<div id="mode" class="stamp" style="margin-bottom:10px">Pilot audit</div>
 <h1>Kachra<span>Khata</span></h1>
 <p class="tag">Every street has a ledger nobody keeps: whose packaging is lying in the drain? Snap litter, let AI read the brand and material, and build ward-wise evidence for EPR accountability.</p>
 <p class="note">Built by <b>Aarush Jha</b></p>
@@ -103,6 +103,10 @@ function esc(t){var d=document.createElement("div");d.textContent=t==null?"":Str
 function norm(b){b=(b||"Unidentified").trim();return b.toLowerCase()==="unknown"?"Unidentified":b}
 
 function render(){
+ var real=entries.filter(function(e){return !e.s}),m="Pilot audit";
+ if(real.length){var w=(real[real.length-1].ward||"").trim(),c=w.split(",").pop().trim();m=(c&&!/^[\d.\s,\-]+$/.test(w))?"Live audit · "+c:"Live audit"}
+ else if(entries.length){m="Sample pilot data"}
+ $("mode").textContent=m;
  var wards=[];entries.forEach(function(e){if(e.ward&&wards.indexOf(e.ward)<0)wards.push(e.ward)});
  var wf=$("wardFilter"),cur=wf.value;
  wf.innerHTML='<option value="">All wards</option>'+wards.map(function(w){return '<option>'+esc(w)+'</option>'}).join("");

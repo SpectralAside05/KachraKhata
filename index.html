@@ -162,7 +162,7 @@ $("exp").addEventListener("click",async function(){
  var hasS=list.some(function(e){return e.s});
  var sum=(hasS?"NOTE: includes illustrative SAMPLE entries, not field evidence.\n":"")+"KachraKhata EPR evidence summary ("+(w||"all wards")+")\nItems logged: "+list.length+"\nTop brands: "+Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]}).slice(0,5).map(function(b){return b+" ("+counts[b]+")"}).join(", ")+"\nNote: AI-assisted audit; reads under 60% confidence excluded from brand counts and flagged for human review.\n\n";
  try{var bl=new Blob([sum+csv],{type:"text/csv"}),u=URL.createObjectURL(bl),l=document.createElement("a");l.href=u;l.download="kachrakhata-epr-report.csv";document.body.appendChild(l);l.click();l.remove();$("expmsg").textContent="Report downloaded."}catch(e){$("expmsg").textContent="Download failed.";}
- catch(e){$("expmsg").textContent="Download unavailable here; report copied to clipboard instead.";try{navigator.clipboard.writeText(sum+csv)}catch(x){}}
+ ";try{navigator.clipboard.writeText(sum+csv)}catch(x){}}
 });
 
 render();

@@ -128,8 +128,24 @@ $("file").addEventListener("change",function(){
  if(file){var p=$("preview");p.src=URL.createObjectURL(file);p.style.display="block";$("go").disabled=!sample}
 });
 $("geo").addEventListener("click",function(){
- if(!navigator.geolocation){$("status").textContent="GPS not available here. Ward name is enough.";return}
- navigator.geolocation.getCurrentPosition(function(p){geo={lat:+p.coords.latitude.toFixed(5),lng:+p.coords.longitude.toFixed(5)};$("status").textContent="GPS added: "+geo.lat+", "+geo.lng},function(){$("status").textContent="GPS blocked. Ward name is enough."},{timeout:8000});
+ var st=$("status");
+ if(!navigator.geolocation){st.textContent="GPS isn't available in this browser. Type the locality instead.";return}
+ st.textContent="Getting your location…";
+ navigator.geolocation.getCurrentPosition(async function(p){
+  geo={lat:+p.coords.latitude.toFixed(5),lng:+p.coords.longitude.toFixed(5)};
+  st.textContent="GPS captured. Finding the locality name…";
+  try{
+   var r=await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&accept-language=en&lat="+geo.lat+"&lon="+geo.lng);
+   var j=await r.json(),a=j.address||{};
+   var area=a.neighbourhood||a.suburb||a.quarter||a.village||a.city_district||"";
+   var city=a.city||a.town||a.county||a.state_district||"";
+   var name=[area,city].filter(Boolean).join(", ")||(j.display_name||"").split(",").slice(0,2).join(",").trim();
+   if(!name)throw 0;
+   $("ward").value=name;st.textContent="Locality set to "+name+" (you can edit it).";
+  }catch(e){$("ward").value=geo.lat+", "+geo.lng;st.textContent="GPS captured, but the name lookup failed, so coordinates were filled in. You can type a locality instead."}
+ },function(err){
+  st.textContent=err&&err.code===1?"Location permission denied. Allow location for this site (lock icon in the address bar), or type the locality.":"Couldn't get your location. Type the locality instead."
+ },{timeout:10000});
 });
 
 $("go").addEventListener("click",async function(){
